@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seras-tu ma Valentine ? 💕</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose: #e8275a;
+      --pink: #f7a8c4;
+      --blush: #fce4ec;
+      --cream: #fff8f5;
+      --gold: #c9924a;
+      --dark: #2a0a14;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--cream);
+      font-family: 'Playfair Display', Georgia, serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── PETALS ── */
+    .petal-layer {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .petal {
+      position: absolute;
+      top: -40px;
+      font-size: 1.4rem;
+      animation: fall linear infinite;
+      opacity: 0.7;
+      user-select: none;
+    }
+    @keyframes fall {
+      0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0.8; }
+      100% { transform: translateY(110vh)  rotate(360deg); opacity: 0; }
+    }
+
+    /* ── PAGES ── */
+    .page {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem;
+      transition: opacity .8s ease, transform .8s ease;
+      z-index: 1;
+    }
+    .page.hidden { opacity: 0; transform: scale(.95); pointer-events: none; }
+
+    /* ── CARD ── */
+    .card {
+      background: white;
+      border-radius: 2.5rem;
+      padding: 3.5rem 3rem 2.8rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow:
+        0 8px 40px rgba(232,39,90,.18),
+        0 2px 8px rgba(232,39,90,.08),
+        inset 0 0 0 1px rgba(249,168,196,.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% -10%, rgba(247,168,196,.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── HEART ICON ── */
+    .big-heart {
+      font-size: 5rem;
+      line-height: 1;
+      display: block;
+      margin-bottom: 1.2rem;
+      animation: heartbeat 1.6s ease-in-out infinite;
+    }
+    @keyframes heartbeat {
+      0%,100% { transform: scale(1); }
+      30%      { transform: scale(1.18); }
+      60%      { transform: scale(1.08); }
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5rem;
+      color: var(--rose);
+      line-height: 1.2;
+      margin-bottom: .6rem;
+    }
+    .subtitle {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: #a04060;
+      font-size: 1rem;
+      margin-bottom: 2.2rem;
+      line-height: 1.6;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-group {
+      display: flex;
+      gap: 1.2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 50px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.45rem;
+      padding: .75rem 2.4rem;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn:active { transform: scale(.95); }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #e8275a 0%, #ff6b95 100%);
+      color: white;
+      box-shadow: 0 6px 24px rgba(232,39,90,.45);
+    }
+    .btn-yes:hover {
+      transform: scale(1.08);
+      box-shadow: 0 10px 32px rgba(232,39,90,.55);
+    }
+
+    .btn-no {
+      background: white;
+      color: #d06080;
+      border: 2px solid var(--pink);
+      box-shadow: 0 4px 12px rgba(247,168,196,.3);
+      position: fixed; /* will be positioned by JS */
+    }
+    .btn-no:hover { transform: scale(1.05); }
+
+    /* ── YES PAGE ── */
+    #yes-page { background: linear-gradient(160deg, #ffe0eb 0%, #fff5e6 100%); }
+
+    .yes-card {
+      background: white;
+      border-radius: 2.5rem;
+      padding: 3.5rem 2.8rem 3rem;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow:
+        0 12px 48px rgba(232,39,90,.2),
+        inset 0 0 0 1px rgba(249,168,196,.4);
+      animation: popIn .7s cubic-bezier(.22,1.5,.55,1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(.6); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+
+    .hearts-row {
+      font-size: 2rem;
+      letter-spacing: .4rem;
+      margin-bottom: 1rem;
+      animation: shimmer 2s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%,100% { filter: brightness(1); }
+      50%      { filter: brightness(1.3) drop-shadow(0 0 8px #e8275a88); }
+    }
+
+    .yes-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 3rem;
+      color: var(--rose);
+      margin-bottom: .5rem;
+    }
+    .yes-message {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: #8b3a52;
+      font-size: 1.08rem;
+      line-height: 1.75;
+      margin-bottom: 1.6rem;
+    }
+    .yes-name {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.9rem;
+      color: var(--rose);
+    }
+
+    /* ── CONFETTI ── */
+    .confetti-piece {
+      position: fixed;
+      width: 10px; height: 10px;
+      border-radius: 2px;
+      animation: confettiFall 3s ease-in forwards;
+      pointer-events: none;
+      z-index: 999;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── DECORATIVE CORNER HEARTS ── */
+    .corner { position: absolute; font-size: 2.2rem; opacity: .13; pointer-events: none; }
+    .corner-tl { top: 1rem; left: 1.2rem; }
+    .corner-tr { top: 1rem; right: 1.2rem; }
+    .corner-bl { bottom: 1rem; left: 1.2rem; }
+    .corner-br { bottom: 1rem; right: 1.2rem; }
+  </style>
+</head>
+<body>
+
+<!-- PETALS BACKGROUND -->
+<div class="petal-layer" id="petals"></div>
+
+<!-- ═══ PAGE 1 : QUESTION ═══ -->
+<div class="page" id="ask-page">
+  <div class="card">
+    <span class="corner corner-tl">♡</span>
+    <span class="corner corner-tr">♡</span>
+    <span class="corner corner-bl">♡</span>
+    <span class="corner corner-br">♡</span>
+
+    <span class="big-heart">💝</span>
+    <h1 class="title">Bonjour, mon amour…</h1>
+    <p class="subtitle">
+      Aujourd'hui est un jour très spécial,<br>
+      et toi, tu l'es encore plus pour moi.
+    </p>
+    <p class="subtitle" style="margin-bottom:2rem;">
+      Seras-tu ma <strong style="color:var(--rose);font-style:normal;">Valentine</strong> ? 🌹
+    </p>
+
+    <div class="btn-group">
+      <button class="btn btn-yes" id="btn-yes" onclick="showYesPage()">
+        Oui 💕
+      </button>
+      <button class="btn btn-no" id="btn-no">
+        Non 🙈
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 2 : OUI ! ═══ -->
+<div class="page hidden" id="yes-page">
+  <div class="yes-card">
+    <div class="hearts-row">💖 💗 💖 💗 💖</div>
+    <h2 class="yes-title">Tu es ma Valentine !</h2>
+    <p class="yes-message">
+      Tu viens de rendre mon cœur le plus heureux<br>
+      du monde entier. 🌍✨<br><br>
+      Je suis tellement chanceux(se) de t'avoir.<br>
+      Chaque jour avec toi est un cadeau.<br><br>
+      Demain c'est le 14 février… mais moi,<br>
+      je voulais déjà te le dire aujourd'hui :<br>
+      je t'aime plus que tout. 🥰
+    </p>
+    <p class="yes-name">Joyeuse Saint-Valentin (en avance), mon amour ! 💌</p>
+  </div>
+</div>
+
+<script>
+  /* ── PETALS ── */
+  const petalEmojis = ['🌸','🌺','❤️','💕','🌷','💗','✿'];
+  const layer = document.getElementById('petals');
+
+  function spawnPetal() {
+    const p = document.createElement('span');
+    p.className = 'petal';
+    p.textContent = petalEmojis[Math.floor(Math.random() * petalEmojis.length)];
+    const size = 0.8 + Math.random() * 1.2;
+    p.style.cssText = `
+      left:${Math.random()*100}vw;
+      font-size:${size}rem;
+      animation-duration:${4 + Math.random()*6}s;
+      animation-delay:${-Math.random()*8}s;
+    `;
+    layer.appendChild(p);
+    setTimeout(() => p.remove(), 12000);
+  }
+
+  for (let i = 0; i < 18; i++) setTimeout(spawnPetal, i * 300);
+  setInterval(spawnPetal, 900);
+
+  /* ── NO BUTTON : FLEE ── */
+  const noBtn = document.getElementById('btn-no');
+  let noInitialized = false;
+
+  function initNoPosition() {
+    if (noInitialized) return;
+    noInitialized = true;
+    // Place it initially next to the yes button
+    const yesBtn = document.getElementById('btn-yes');
+    const rect = yesBtn.getBoundingClientRect();
+    noBtn.style.left = (rect.right + 20) + 'px';
+    noBtn.style.top  = rect.top + 'px';
+  }
+
+  function fleeTo(x, y) {
+    const w = noBtn.offsetWidth;
+    const h = noBtn.offsetHeight;
+    const maxX = window.innerWidth  - w - 10;
+    const maxY = window.innerHeight - h - 10;
+    noBtn.style.left = Math.min(maxX, Math.max(10, x)) + 'px';
+    noBtn.style.top  = Math.min(maxY, Math.max(10, y)) + 'px';
+  }
+
+  function getRandomPos() {
+    const w = noBtn.offsetWidth;
+    const h = noBtn.offsetHeight;
+    return {
+      x: Math.random() * (window.innerWidth  - w - 20) + 10,
+      y: Math.random() * (window.innerHeight - h - 20) + 10,
+    };
+  }
+
+  // Flee on mouse proximity — reacts to cursor anywhere on the page
+  document.addEventListener('mousemove', (e) => {
+    initNoPosition();
+    const rect = noBtn.getBoundingClientRect();
+    const cx = rect.left + rect.width  / 2;
+    const cy = rect.top  + rect.height / 2;
+    const dx = cx - e.clientX;
+    const dy = cy - e.clientY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Start fleeing when cursor gets within 160px
+    if (dist < 160) {
+      const flee = 220;
+      const norm = dist || 1;
+      // Flee directly away + small random wobble so it never gets cornered perfectly
+      const wobble = (Math.random() - 0.5) * 80;
+      fleeTo(
+        cx + (dx / norm) * flee + wobble - rect.width  / 2,
+        cy + (dy / norm) * flee + wobble - rect.height / 2
+      );
+    }
+  });
+
+  // Also flee on touch (mobile) — jump to random spot
+  noBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    initNoPosition();
+    const pos = getRandomPos();
+    fleeTo(pos.x, pos.y);
+  }, { passive: false });
+
+  /* ── YES BUTTON ── */
+  function showYesPage() {
+    document.getElementById('ask-page').classList.add('hidden');
+    document.getElementById('yes-page').classList.remove('hidden');
+    launchConfetti();
+  }
+
+  /* ── CONFETTI ── */
+  const confettiColors = ['#e8275a','#f7a8c4','#ffcf77','#a0d468','#48cfad','#9b59b6'];
+
+  function launchConfetti() {
+    for (let i = 0; i < 120; i++) {
+      setTimeout(() => {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.cssText = `
+          left:${Math.random()*100}vw;
+          top:-10px;
+          background:${confettiColors[Math.floor(Math.random()*confettiColors.length)]};
+          width:${6+Math.random()*10}px;
+          height:${6+Math.random()*10}px;
+          border-radius:${Math.random()>.5 ? '50%' : '2px'};
+          animation-duration:${2+Math.random()*2}s;
+          animation-delay:${Math.random()*.5}s;
+        `;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 4000);
+      }, i * 25);
+    }
+  }
+</script>
+</body>
+</html>
